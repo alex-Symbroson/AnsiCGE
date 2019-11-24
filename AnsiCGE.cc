@@ -3,6 +3,7 @@
  */
 
 #include "AnsiCGE.h"
+#include "Bitmap.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,9 +14,11 @@
 #include <unistd.h>
 #include <signal.h>
 
+#include "Bitmap.h"
 
 FILE* fifo = NULL;
 int fifod = 0;
+Bitmap* bmp = new Bitmap(100, 100);
 
 void handleCmd(std::list<string> &cmd) {
     const string name = cmd.front();
@@ -32,12 +35,12 @@ void handleCmd(std::list<string> &cmd) {
 int main(int argc, const char* argv[]) {
     if (signal(SIGINT, [](int sig) {
             prog_exit(SIGINT, "program interrupted");
-        }) == SIG_ERR) prog_exit(1, "couldnt set signal handler");
+        }) == SIG_ERR) prog_exit(1, "couldn't set signal handler");
     if (signal(SIGTERM, [](int sig) {
             prog_exit(SIGTERM, "program terminated");
         }) == SIG_ERR) prog_exit(1, "couldnt set signal handler");
     if (signal(SIGTSTP, [](int sig) {
-            prog_exit(SIGSTOP, "program kb stopped");
+            prog_exit(SIGTSTP, "program kb stopped");
         }) == SIG_ERR) prog_exit(1, "couldnt set signal handler");
     if (signal(SIGQUIT, [](int sig) {
             prog_exit(SIGQUIT, "program exited");
@@ -45,7 +48,6 @@ int main(int argc, const char* argv[]) {
     if (signal(SIGALRM, [](int sig) {
             printf("alarm received\n");
         }) == SIG_ERR) prog_exit(1, "couldnt set signal handler");
-
 
     fifo = fopen("pid", "w");
     if (!fifo) prog_exit(1, "couldn't open file for writing");
