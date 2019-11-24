@@ -7,6 +7,8 @@
       <itemPath>AnsiCGE.h</itemPath>
       <itemPath>Bitmap.h</itemPath>
       <itemPath>Color.h</itemPath>
+      <itemPath>Pixel.h</itemPath>
+      <itemPath>TextAttr.h</itemPath>
     </logicalFolder>
     <logicalFolder name="ResourceFiles"
                    displayName="Resource Files"
@@ -19,6 +21,7 @@
       <itemPath>AnsiCGE.cc</itemPath>
       <itemPath>Bitmap.cpp</itemPath>
       <itemPath>Color.cpp</itemPath>
+      <itemPath>Pixel.cpp</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
@@ -50,6 +53,12 @@
       <item path="Color.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Color.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Pixel.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Pixel.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="TextAttr.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="run.sh" ex="false" tool="3" flavor2="0">
       </item>
@@ -85,6 +94,12 @@
       <item path="Color.cpp" ex="false" tool="1" flavor2="0">
       </item>
       <item path="Color.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="Pixel.cpp" ex="false" tool="1" flavor2="0">
+      </item>
+      <item path="Pixel.h" ex="false" tool="3" flavor2="0">
+      </item>
+      <item path="TextAttr.h" ex="false" tool="3" flavor2="0">
       </item>
       <item path="run.sh" ex="false" tool="3" flavor2="0">
       </item>

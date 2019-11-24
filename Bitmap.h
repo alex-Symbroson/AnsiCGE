@@ -9,40 +9,7 @@
 #ifndef BITMAP_H
 #define BITMAP_H
 
-#include <sys/types.h>
-#include <stdlib.h>
-#include <string.h>
-#include <type_traits>
-
-#include "Color.h"
-
-struct Pixel {
-    char symbol = ' ';
-    Color color = {.attrs = new TextAttr[2]
-        {TextAttr::BGB_WHITE, TextAttr::FGB_BLACK}};
-
-    ~Pixel() {
-        delete color.attrs;
-    }\
-    
-
-    string toStr() {
-        return color.toStr() + symbol;
-    }
-
-    static string toStr(char mod, Color color = {}, char symbol = -1) {
-        if (symbol == -1) return color.toStr();
-        return color.toStr() + symbol;
-    }
-
-    bool operator!=(const Pixel& p) const {
-        return !(*this == p);
-    }
-
-    bool operator==(const Pixel& p) const {
-        return symbol == p.symbol && color == p.color;
-    }
-};
+#include "Pixel.h"
 
 class Bitmap {
 public:
@@ -59,16 +26,28 @@ public:
     }
 
     Pixel* GetMap() const {
-                return map;
+        return map;
     }
 
     void render();
+
+    void drawPixel(int x, int y, Color color = COLORS(TextAttr::BGB_WHITE));
+
+    void drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Color color);
+
+    void drawRectangle(
+            int x, int y, uint w, uint h,
+            Color fill = Color(NULL),
+            Color stroke = COLORS(TextAttr::BGB_WHITE),
+            uint strokeWidth = 1,
+            uint radius = 0);
 
 private:
     uint width, height;
     Pixel* tmap;
     Pixel* map;
 
+    void _drawPixel(int x, int y, Color color = COLORS(TextAttr::BGB_WHITE));
 };
 
 #endif /* BITMAP_H */

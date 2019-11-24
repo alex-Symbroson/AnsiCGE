@@ -1,6 +1,6 @@
 
 #ifndef _welcome_H
-#define	_welcome_H
+#define _welcome_H
 
 #include <string>
 #include <list>
@@ -19,5 +19,5 @@ void handleCmd(std::list<string> &cmd);
 int main(int argc, const char* argv[]);
 void prog_exit(int ret = 0, const char* err = "");
 
-#endif	/* _welcome_H */
+#endif /* _welcome_H */
 

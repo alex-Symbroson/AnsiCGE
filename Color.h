@@ -8,10 +8,17 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+#include "TextAttr.h"
+
 #include <string>
-#include <string.h>
-#include <cmath>
-#include <cstdarg>
+
+#define LOG2(X) log2<X>
+#define BITS(X) __builtin_popcount(X)
+
+#define t_log2(X) std::__log2p1(X)
+#define i_log2(X) std::__lg(X)
+
+#define COLORS(...) {__VA_ARGS__}
 
 using std::string;
 
@@ -19,43 +26,6 @@ template <uint x>
 constexpr std::enable_if_t<x != 0U, int> _log2 = 1 + _log2< x / 2 >;
 template<>
 constexpr uint _log2<1U> = 0;
-
-#define LOG2(X) log2<X>
-#define _B(n) (1 << n)
-#define BITS(X) __builtin_popcount(X)
-
-inline uint log2u(uint x) {
-    return x ? 31 - ffs(x) : 0;
-}
-
-#define t_log2(X) std::__log2p1(X)
-#define i_log2(X) std::__lg(X)
-
-enum class TextAttr : char {
-    _NONE = '\255',
-    OFF = 0, // All attributes off
-    BOLD,
-    THIN, // Not widely supported.
-    ITALIC, // Not widely supported.
-    UNDERLINE, SLOWBLINK, FASTBLINK,
-    INVERSE, // swap fg and bg color
-    CONCEAL, // Not widely supported.
-    CROSSOUT,
-    NORMALFONT = 10, FONT1, FONT2, FONT3,
-    FONT4, FONT5, FONT6, FONT7, FONT8, FONT9,
-    FRAKTUR = 20, // hardly ever supported
-    DBL_UNDL, BOLD_THIN_OFF, ITALIC_OFF, UNTERLINE_OFF, BLINK_OFF,
-    INVERSE_OFF = 27, COLCEAL_OFF, CROSSOUT_OFF,
-    FG_BLACK = 30, FG_RED, FG_GREEN, FG_YELLOW, FG_BLUE,
-    FG_PINK, FG_TURKIS, FG_WHITE, FG_HUE_RGB, FG_DEFAULT,
-    BG_BLACK = 40, BG_RED, BG_GREEN, BG_YELLOW, BG_BLUE,
-    BG_PINK, BG_TURKIS, BG_WHITE, BG_HUE_RGB, BG_DEFAULT,
-    FRAMED = 51, ENCIRCLED, OVERLINED, FRM_CIR_OFF, OVRLN_OFF,
-    FGB_BLACK = 90, FGB_RED, FGB_GREEN, FGB_YELLOW, FGB_BLUE,
-    FGB_PINK, FGB_TURKIS, FGB_WHITE, FGB_HUE_RGB, FGB_DEFAULT,
-    BGB_BLACK = 100, BGB_RED, BGB_GREEN, BGB_YELLOW, BGB_BLUE,
-    BGB_PINK, BGB_TURKIS, BGB_WHITE, BGB_HUE_RGB, BGB_DEFAULT
-};
 
 template<typename T>
 inline T dflt(T value, T none, T dflt) {
@@ -67,7 +37,25 @@ string ansiEsc(char cmd, TextAttr* attrs);
 
 struct Color {
 public:
-    TextAttr* attrs = NULL;
+    static Color fromRGB(TextAttr mode, uint8_t r, uint8_t g, uint8_t b);
+
+    /**
+     * 8bit colors:\
+     * 0x00-0x07:  standard colors (same as the 4-bit colours) \
+     * 0x08-0x0F:  high intensity colors \
+     * 0x10-0xE7:  6 × 6 × 6 cube (216 colors): 16 + 36 × r + 6 × g + b (0 ≤ r, g, b ≤ 5)\
+     * 0xE8-0xFF:  grayscale from black to white in 24 steps
+     */
+    static Color from8BIT(TextAttr mode, uint8_t hue);
+
+
+    TextAttr* attrs;
+
+    Color();
+    Color(std::initializer_list<TextAttr> attrs);
+    Color(TextAttr* attrs);
+
+    ~Color();
 
     string toStr() const {
         return ansiEsc('m', attrs);
@@ -79,11 +67,10 @@ public:
 
     bool operator==(const Color& c) const {
         TextAttr *a = attrs, *b = c.attrs;
-        while (a != NULL && b != NULL) 
+        while (a != NULL && b != NULL)
             if (a++ != b++) return false;
         return true;
     }
-
 };
 
 

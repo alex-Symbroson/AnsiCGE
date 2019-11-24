@@ -15,74 +15,93 @@
 #include <signal.h>
 
 #include "Bitmap.h"
+#include <stdexcept>
 
 FILE* fifo = NULL;
-int fifod = 0;
-Bitmap* bmp = new Bitmap(100, 100);
+//int fifod = 0;
+Bitmap* bmp;
 
-void handleCmd(std::list<string> &cmd) {
+void test()
+{
+    bmp = new Bitmap(20, 20);
+    bmp->drawPixel(10, 10, COLORS(TextAttr::BG_GREEN));
+    bmp->render();
+}
+
+void handleCmd(std::list<string> &cmd)
+{
     const string name = cmd.front();
 
     switch (hash(name.c_str())) {
-        case hash("exit"): prog_exit(0, "exited.");
-            break;
-        case hash("greet"): printf("Hello!\n");
-            break;
-        default: fprintf(stderr, "unknown command '%s'\n", name.c_str());
+    case hash("exit"): prog_exit(0, "exited.");
+        break;
+    case hash("greet"): printf("Hello!\n");
+        break;
+    default: fprintf(stderr, "unknown command '%s'\n", name.c_str());
     }
 }
 
-int main(int argc, const char* argv[]) {
-    if (signal(SIGINT, [](int sig) {
+int main(int argc, const char* argv[])
+{
+    if (signal(SIGINT, [](int sig)
+        {
             prog_exit(SIGINT, "program interrupted");
         }) == SIG_ERR) prog_exit(1, "couldn't set signal handler");
-    if (signal(SIGTERM, [](int sig) {
+    if (signal(SIGTERM, [](int sig)
+        {
             prog_exit(SIGTERM, "program terminated");
         }) == SIG_ERR) prog_exit(1, "couldnt set signal handler");
-    if (signal(SIGTSTP, [](int sig) {
+    if (signal(SIGTSTP, [](int sig)
+        {
             prog_exit(SIGTSTP, "program kb stopped");
         }) == SIG_ERR) prog_exit(1, "couldnt set signal handler");
-    if (signal(SIGQUIT, [](int sig) {
+    if (signal(SIGQUIT, [](int sig)
+        {
             prog_exit(SIGQUIT, "program exited");
         }) == SIG_ERR) fprintf(stderr, "couldnt set signal handler");
-    if (signal(SIGALRM, [](int sig) {
+    if (signal(SIGALRM, [](int sig)
+        {
             printf("alarm received\n");
         }) == SIG_ERR) prog_exit(1, "couldnt set signal handler");
 
-    fifo = fopen("pid", "w");
-    if (!fifo) prog_exit(1, "couldn't open file for writing");
-    fprintf(fifo, "%i", getpid());
-    fclose(fifo);
+    //fifo = fopen("pid", "w");
+    //if (!fifo) prog_exit(1, "couldn't open file for writing");
+    //fprintf(fifo, "%i", getpid());
+    //fclose(fifo);
 
-    const char* name = "cmd"; // fifo name
-    mkfifo(name, 0666); // create fifo
-    fifo = fopen(name, "r"); // open fifo for reading
-    fifod = open(name, O_WRONLY); // keep fifo in write mode to prevent EOF
+    // fifo name
+#define name "cmd"
+    mkfifo(name, 0777); // create fifo
+    fifo = fopen(name, "r+"); // open fifo for reading
+    //fifod = open(name, O_WRONLY); // keep fifo in write mode to prevent EOF
     if (!fifo) prog_exit(1, "couldn't open fifo for reading");
+#undef name
 
     string word;
     std::list<string> cmd;
     char c;
     int cmdEnd = 0;
 
+    test();
+
     do {
         c = getc(fifo);
         switch (c) {
-            case '\0': break;
-            
-            case '\f': // parameter separator
-            case ' ': cmd.push_back(word);
-                word.clear();
-                break;
-                
-            case '\n': // command separator
-                cmd.push_back(word);
-                word.clear();
-                handleCmd(cmd);
-                cmd.clear();
-                break;
-                
-            default: word += c;
+        case '\0': break;
+
+        case '\f': // parameter separator
+        case ' ': cmd.push_back(word);
+            word.clear();
+            break;
+
+        case '\n': // command separator
+            cmd.push_back(word);
+            word.clear();
+            handleCmd(cmd);
+            cmd.clear();
+            break;
+
+        default: word += c;
         }
     } while (c != EOF);
 
@@ -92,9 +111,10 @@ int main(int argc, const char* argv[]) {
 /**
  * Close files and exit program
  */
-void prog_exit(int ret, const char* err) {
-    if(fifo) fclose(fifo);
-    if(fifod) close(fifod);
+void prog_exit(int ret, const char* err)
+{
+    if (fifo) fclose(fifo);
+    //if (fifod) close(fifod);
     if (*err) fprintf(stderr, "%s\n", err);
     exit(ret);
 }

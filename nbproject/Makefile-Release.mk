@@ -37,7 +37,8 @@ OBJECTDIR=${CND_BUILDDIR}/${CND_CONF}/${CND_PLATFORM}
 OBJECTFILES= \
 	${OBJECTDIR}/AnsiCGE.o \
 	${OBJECTDIR}/Bitmap.o \
-	${OBJECTDIR}/Color.o
+	${OBJECTDIR}/Color.o \
+	${OBJECTDIR}/Pixel.o
 
 
 # C Compiler Flags
@@ -78,6 +79,11 @@ ${OBJECTDIR}/Color.o: Color.cpp
 	${MKDIR} -p ${OBJECTDIR}
 	${RM} "$@.d"
 	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Color.o Color.cpp
+
+${OBJECTDIR}/Pixel.o: Pixel.cpp 
+	${MKDIR} -p ${OBJECTDIR}
+	${RM} "$@.d"
+	$(COMPILE.cc) -O2 -MMD -MP -MF "$@.d" -o ${OBJECTDIR}/Pixel.o Pixel.cpp
 
 # Subprojects
 .build-subprojects:
