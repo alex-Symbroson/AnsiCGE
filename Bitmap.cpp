@@ -16,34 +16,26 @@ using std::string;
 using std::min;
 using std::max;
 
-
 Bitmap::Bitmap(uint width, uint height)
 {
-    printf(" new bmp 1 %p\n", this);
     this->width = width;
     this->height = height;
-
     map = new Pixel[width * height];
     tmap = new Pixel[width * height];
-    printf("*new bmp 1 %p\n", this);
 }
 
 Bitmap::Bitmap(const Bitmap& orig)
 {
-    printf(" new bmp 2 %p\n", this);
     width = orig.width;
     height = orig.height;
     map = (Pixel*) memcpy(map, orig.map, width * height * sizeof(Pixel));
     tmap = (Pixel*) memcpy(tmap, orig.tmap, width * height * sizeof(Pixel));
-    printf("*new bmp 2 %p\n", this);
 }
 
 Bitmap::~Bitmap()
 {
-    printf(" del bmp   %p\n", this);
     delete[] tmap;
     delete[] map;
-    printf("*del bmp   %p\n", this);
 }
 
 void Bitmap::render()
@@ -51,9 +43,9 @@ void Bitmap::render()
     string out = "\033[H";
     int ox = 0;
 
-    for (int y = 0; y < height; ++y) {
+    for (int y = 0; y < height; ++y, ox += width) {
         //string chg, ovr;
-        for (int x = 0; x < width; ++x) {
+        for (int x = ox; x < ox + width; ++x) {
             out += map[x].toStr();
             /*int eq = 0;
             if (map[x] != tmap[x]) {
@@ -104,7 +96,7 @@ void Bitmap::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, Color colo
 static inline bool isStroke(int diff, uint width, int tol)
 {
     // prevented through rect constraints specification in 
-    //if (!(width % 2) && 2 * abs(diff - tol) < width) return true;
+    //if (!(width % 2) && 2 * abs(diff + tol) < width) return true;
     return 2 * abs(diff) < width;
 }
 
@@ -114,7 +106,8 @@ void Bitmap::drawRectangle(
         Color stroke,
         uint strokeWidth, uint radius)
 {
-    const int strokeW = (strokeWidth - 1) / 2;
+    // wtf -1 / 2 = 2147483647
+    const int strokeW = strokeWidth ? (strokeWidth - 1) / 2 : 0;
     uint x1 = max(0, x - strokeW),
             y1 = max(0, y - strokeW);
     const uint x2 = min(x + w + strokeW, width),
@@ -130,14 +123,15 @@ void Bitmap::drawRectangle(
                 if (x1 > width - radius && y > height - radius) break;
             }
 
-            _drawPixel(x, y, (
+            _drawPixel(x1, y1, (strokeWidth && (
                     isStroke(x1 - x, strokeWidth, 1) ||
                     isStroke(y1 - y, strokeWidth, 1) ||
-                    isStroke(x2 - x - width, strokeWidth, -1) ||
-                    isStroke(y2 - y - height, strokeWidth, -1)
-                    ) ? stroke : fill);
+                    isStroke(x1 - x - w + 1, strokeWidth, -1) ||
+                    isStroke(y1 - y - h + 1, strokeWidth, -1)
+                    )) ? stroke : fill);
             ++y1;
         }
+        y1 = max(0, y - strokeW);
         ++x1;
     }
 }

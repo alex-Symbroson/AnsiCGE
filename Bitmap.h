@@ -37,9 +37,9 @@ public:
 
     void drawRectangle(
             int x, int y, uint w, uint h,
-            Color fill = Color(NULL),
+            Color fill = Color(),
             Color stroke = COLORS(TextAttr::BGB_WHITE),
-            uint strokeWidth = 1,
+            uint strokeWidth = 0,
             uint radius = 0);
 
 private:
@@ -47,7 +47,7 @@ private:
     Pixel* tmap;
     Pixel* map;
 
-    void _drawPixel(int x, int y, Color color = COLORS(TextAttr::BGB_WHITE));
+    void _drawPixel(int x, int y, Color color);
 };
 
 #endif /* BITMAP_H */

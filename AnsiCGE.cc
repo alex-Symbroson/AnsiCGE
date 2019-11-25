@@ -18,14 +18,18 @@
 #include <stdexcept>
 
 FILE* fifo = NULL;
-//int fifod = 0;
 Bitmap* bmp;
 
 void test()
 {
     bmp = new Bitmap(20, 20);
-    bmp->drawPixel(10, 10, COLORS(TextAttr::BG_GREEN));
+    bmp->drawRectangle(2, 4, 12, 7,
+            COLORS(TextAttr::BGB_RED),
+            COLORS(TextAttr::BGB_BLUE), 1);
+    bmp->drawPixel(10, 8, 
+            COLORS(TextAttr::BGB_GREEN));
     bmp->render();
+    prog_exit(0);
 }
 
 void handleCmd(std::list<string> &cmd)

@@ -11,6 +11,7 @@
 #include "TextAttr.h"
 
 #include <string>
+#include <forward_list>
 
 #define LOG2(X) log2<X>
 #define BITS(X) __builtin_popcount(X)
@@ -21,6 +22,7 @@
 #define COLORS(...) {__VA_ARGS__}
 
 using std::string;
+using std::forward_list;
 
 template <uint x>
 constexpr std::enable_if_t<x != 0U, int> _log2 = 1 + _log2< x / 2 >;
@@ -33,6 +35,7 @@ inline T dflt(T value, T none, T dflt) {
 }
 
 string ansiEsc(char cmd, std::initializer_list<TextAttr> attrs);
+string ansiEsc(char cmd, const forward_list<TextAttr>& attrs);
 string ansiEsc(char cmd, TextAttr* attrs);
 
 struct Color {
@@ -48,14 +51,15 @@ public:
      */
     static Color from8BIT(TextAttr mode, uint8_t hue);
 
-
-    TextAttr* attrs;
+    forward_list<TextAttr> attrs;
 
     Color();
     Color(std::initializer_list<TextAttr> attrs);
-    Color(TextAttr* attrs);
 
     ~Color();
+
+    Color(const Color& other) : attrs(other.attrs) {
+    }
 
     string toStr() const {
         return ansiEsc('m', attrs);
@@ -66,9 +70,9 @@ public:
     }
 
     bool operator==(const Color& c) const {
-        TextAttr *a = attrs, *b = c.attrs;
-        while (a != NULL && b != NULL)
-            if (a++ != b++) return false;
+        auto a = attrs.begin(), b = c.attrs.begin();
+        while (a != attrs.end() && b != attrs.end())
+            if (*a != *b) return false;
         return true;
     }
 };

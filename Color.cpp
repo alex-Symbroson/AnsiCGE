@@ -6,34 +6,18 @@
 #include <cmath>
 #include <cstdarg>
 
-
-Color::Color() : Color({TextAttr::OFF, TextAttr::BG_BLACK, TextAttr::FG_WHITE})
+Color::Color() : attrs{TextAttr::OFF, TextAttr::BG_BLACK, TextAttr::FG_WHITE}
 {
 }
 
 Color::Color(std::initializer_list<TextAttr> attrs) :
-    attrs(new TextAttr[attrs.size()])
+    attrs(attrs)
 {
-    //printf(" new   col 2 %p\n", this);
-    TextAttr* c = this->attrs;
-    for (TextAttr a : attrs) *c++ = a;
-    //printf("*new   col 2 %p\n", this);
-}
-
-Color::Color(TextAttr* attrs) :
-    attrs(new TextAttr[strlen((char*) attrs)])
-{
-    //printf(" new   col 3 %p\n", this);
-    TextAttr* c = this->attrs;
-    do *c++ = *attrs++; while (*attrs++ != TextAttr::OFF);
-    //printf("*new   col 3 %p\n", this);
+    this->attrs.push_front(TextAttr::OFF);
 }
 
 Color::~Color()
 {
-    printf(" del   col   %p\n", this);
-    if (attrs != NULL) delete[] attrs;
-    printf("*del   col   %p\n", this);
 }
 
 Color Color::fromRGB(TextAttr ground, uint8_t r, uint8_t g, uint8_t b)
@@ -54,8 +38,8 @@ string ansiEsc(char cmd, std::initializer_list<TextAttr> attrs)
 {
     string res = "\033[";
     for (TextAttr a : attrs)
-        res += std::to_string((uint8_t) a) + ";";
-    if (attrs.size()) res.back() = cmd;
+        res += std::to_string((uint8_t) a) + ';';
+    if (res.back() == ';') res.back() = cmd;
     else res += cmd;
     return res;
 }
@@ -64,9 +48,19 @@ string ansiEsc(char cmd, TextAttr* attrs)
 {
     string res = "\033[";
     while (*attrs != TextAttr::OFF)
-        res += std::to_string((uint8_t) * attrs++) + ";";
+        res += std::to_string((uint8_t) * attrs++) + ';';
     char& back = res.back();
     if (back == ';') back = cmd;
+    else res += cmd;
+    return res;
+}
+
+string ansiEsc(char cmd, const forward_list<TextAttr>& attrs)
+{
+    string res = "\033[";
+    for (TextAttr a : attrs)
+        res += std::to_string((uint8_t) a) + ';';
+    if (res.back() == ';') res.back() = cmd;
     else res += cmd;
     return res;
 }

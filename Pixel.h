@@ -21,7 +21,7 @@ struct Pixel {
     ~Pixel();
 
     string toStr() const {
-        return color.toStr() + symbol;
+        return color.toStr() + symbol + symbol;
     }
 
     static string toStr(char mod, Color color = {}, char symbol = -1) {

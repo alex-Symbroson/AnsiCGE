@@ -22,6 +22,4 @@ Pixel::Pixel(char symbol, Color color) :
 
 Pixel::~Pixel()
 {
-    printf(" del  pxl   %p\n", this);
-    printf("*del  pxl   %p\n", this);
 }
